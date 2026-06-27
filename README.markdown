@@ -55,3 +55,4 @@ Additional contributions from:
 
 It is released under the terms of the GNU General Public License, version 3;
 See LICENSE file for details.
+<!-- trigger windows build -->
