@@ -1,48 +1,35 @@
 name: MSVC-CI
+
 on:
   push:
-    branches: [master]
+    branches:
+      - master
   pull_request:
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: windows-latest
+
     steps:
-      - uses: actions/checkout@v2
-      - name: Configure and Build
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure
+        run: cmake -S . -B build -G "Visual Studio 17 2022" -A Win32
+
+      - name: Build Release
+        run: cmake --build build --config Release
+
+      - name: List build output
+        shell: pwsh
         run: |
-          mkdir build
-          cd build
-          cmake -G "Visual Studio 17 2022" -A Win32 ..
-          cmake --build . --config Debug
-          cmake --build . --config Release
-
-      name: MSVC-CI
-on:
-  push:
-    branches: [master]
-  pull_request:
-
-jobs:
-  build:
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Configure and Build
-        run: |
-          mkdir build
-          cd build
-          cmake -G "Visual Studio 17 2022" -A Win32 ..
-          cmake --build . --config Release
+          Get-ChildItem -Recurse build | Select-Object FullName,Length
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: pycdc-release
-          path: build\Release\*.exe
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: pycdc-release
-          path: build\Release\*.exe
+          path: |
+            build/Release/*.exe
+            build/*/Release/*.exe
